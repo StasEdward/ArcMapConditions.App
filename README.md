@@ -15,6 +15,18 @@ parsing logic ported from Lua to C#, and a refreshed card-based UI.
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
 ![Version](https://img.shields.io/badge/version-1.0-blue)
 
+## Download
+
+Grab the latest ready-to-run build from the [**Releases**](../../releases/latest)
+page: download **`ArcMapConditions-win-x64.zip`**, extract it anywhere, and run
+`ArcMapConditions.exe`. The build is self-contained — **no .NET installation
+needed**. (To start it automatically at logon, drop a shortcut to the exe into
+`shell:startup`.)
+
+Builds are produced automatically by GitHub Actions (see
+[`.github/workflows`](.github/workflows)); every push is compiled and the parser
+tests are run, and pushing a `v*` tag publishes a Release.
+
 ## Features
 
 - **Active now** and **Coming up** sections, refreshed from the official page
