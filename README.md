@@ -4,7 +4,7 @@ A standalone **Windows desktop overlay** that shows live **ARC Raiders** map
 conditions — which events are active now and what's coming up — with per-second
 countdowns and optional start reminders. No Rainmeter required.
 
-It is a C# / WPF successor to the original *ARC Map Conditions* Rainmeter skin:
+It is a C# / WPF successor to the original [*ARC Map Conditions*](https://github.com/StasEdward/Rainmeter_Skins) Rainmeter skin:
 same data source (`arcraiders.com/map-conditions`), the same battle-tested
 parsing logic ported from Lua to C#, and a refreshed card-based UI.
 
