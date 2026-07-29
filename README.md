@@ -36,8 +36,8 @@ parsing logic ported from Lua to C#, and a refreshed card-based UI.
 ## Requirements
 
 - Windows 10 / 11
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) to build, or the
-  .NET 8 Desktop Runtime to run a published build.
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) to build, or the
+  .NET 10 Desktop Runtime to run a published build.
 
 ## Build & run
 
