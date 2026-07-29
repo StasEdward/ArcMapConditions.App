@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ParserSmokeTest</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The Core parser has no WPF dependency, so we compile just those files
+       here to unit-test the port on any platform. -->
+  <ItemGroup>
+    <Compile Include="..\..\src\ArcMapConditions.App\Core\ConditionsParser.cs" />
+    <Compile Include="..\..\src\ArcMapConditions.App\Core\ParsedConditions.cs" />
+    <Compile Include="..\..\src\ArcMapConditions.App\Core\MapConditionEntry.cs" />
+    <!-- Subscription logic is UI-free, so it is exercised here too. -->
+    <Compile Include="..\..\src\ArcMapConditions.App\Services\Subscription.cs" />
+    <Compile Include="..\..\src\ArcMapConditions.App\Services\SubscriptionManager.cs" />
+  </ItemGroup>
+
+</Project>

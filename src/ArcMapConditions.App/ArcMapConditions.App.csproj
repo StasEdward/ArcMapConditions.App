@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RootNamespace>ArcMapConditions.App</RootNamespace>
+    <AssemblyName>ArcMapConditions</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <!-- Single-file friendly; no external deps required. -->
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <!-- App icon, also embedded as a resource so the window can use it. -->
+  <ItemGroup>
+    <Resource Include="app.ico" />
+  </ItemGroup>
+
+  <!-- Condition icons: copied next to the exe and loaded at runtime by slug. -->
+  <ItemGroup>
+    <Content Include="Assets\icons\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Assets\icons\%(Filename)%(Extension)</Link>
+    </Content>
+    <!-- Notification sound, copied next to the exe. -->
+    <Content Include="Assets\sounds\*.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Assets\sounds\%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
+</Project>

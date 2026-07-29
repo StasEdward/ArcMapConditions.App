@@ -1,0 +1,33 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArcMapConditions.App", "src\ArcMapConditions.App\ArcMapConditions.App.csproj", "{C1A2B3D4-0001-4A2B-9C3D-000000000001}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{95C03D15-82B1-4E5E-BA42-1793CD1F4D6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserSmokeTest", "tests\ParserSmokeTest\ParserSmokeTest.csproj", "{95761119-4F9F-4ACC-8AC4-E5C8F60612D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1A2B3D4-0001-4A2B-9C3D-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1A2B3D4-0001-4A2B-9C3D-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1A2B3D4-0001-4A2B-9C3D-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1A2B3D4-0001-4A2B-9C3D-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95761119-4F9F-4ACC-8AC4-E5C8F60612D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95761119-4F9F-4ACC-8AC4-E5C8F60612D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95761119-4F9F-4ACC-8AC4-E5C8F60612D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95761119-4F9F-4ACC-8AC4-E5C8F60612D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{95761119-4F9F-4ACC-8AC4-E5C8F60612D0} = {95C03D15-82B1-4E5E-BA42-1793CD1F4D6E}
+	EndGlobalSection
+EndGlobal
