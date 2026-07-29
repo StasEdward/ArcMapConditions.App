@@ -10,7 +10,7 @@ parsing logic ported from Lua to C#, and a refreshed card-based UI.
 
 ![ARC Map Conditions overlay](Screenshot_V1.0.png)
 
-![.NET 10](https://shields.io)
+![Target: net10.0](https://shields.io)
 ![WPF](https://img.shields.io/badge/UI-WPF-2C7CB0)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
 ![Version](https://img.shields.io/badge/version-1.0-blue)
