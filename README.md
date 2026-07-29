@@ -10,10 +10,11 @@ parsing logic ported from Lua to C#, and a refreshed card-based UI.
 
 ![ARC Map Conditions overlay](Screenshot_V1.0.png)
 
-![Target: net10.0](https://shields.io)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![WPF](https://img.shields.io/badge/UI-WPF-2C7CB0)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
 ![Version](https://img.shields.io/badge/version-1.0-blue)
+![CI](https://github.com/StasEdward/ArcMapConditions.App/actions/workflows/ci.yml/badge.svg)
 
 ## Download
 
@@ -69,7 +70,7 @@ dotnet publish src/ArcMapConditions.App -c Release -r win-x64 `
 ```
 
 The result is a single `ArcMapConditions.exe` under
-`src/ArcMapConditions.App/bin/Release/net8.0-windows/win-x64/publish/`.
+`src/ArcMapConditions.App/bin/Release/net10.0-windows/win-x64/publish/`.
 To launch it at logon, drop a shortcut to that exe into `shell:startup`.
 
 ## Using it
