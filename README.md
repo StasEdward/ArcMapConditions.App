@@ -13,8 +13,7 @@ parsing logic ported from Lua to C#, and a refreshed card-based UI.
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![WPF](https://img.shields.io/badge/UI-WPF-2C7CB0)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-0078D6)
-![Version](https://img.shields.io/badge/version-1.0-blue)
-![CI](https://github.com/StasEdward/ArcMapConditions.App/actions/workflows/ci.yml/badge.svg)
+![Version](https://img.shields.io/badge/version-1.1-blue)
 
 ## Download
 
@@ -81,6 +80,15 @@ To launch it at logon, drop a shortcut to that exe into `shell:startup`.
   orange. When that event starts you get a popup in the bottom-right corner and a
   chime. Reminders survive the 60-second refresh, fire once each, and don't steal
   focus from the game.
+
+The right-click menu also has two toggles:
+
+- **Run at Windows startup** — adds/removes a per-user entry (`HKCU\…\Run`) so the
+  overlay launches at logon. No admin rights needed.
+- **Remember position** *(on by default)** — restores the last window position on
+  startup, across multiple monitors. If the monitor it was on is disconnected, it
+  falls back to the top-right corner. Settings live in
+  `%APPDATA%\ArcMapConditions\settings.json`.
 
 ## How it works
 
