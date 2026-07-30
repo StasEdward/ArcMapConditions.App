@@ -34,6 +34,10 @@
                 <Separator />
                 <MenuItem x:Name="PinMenuItem" Header="Always on top"
                           IsCheckable="True" IsChecked="True" Click="PinMenuItem_Click" />
+                <MenuItem x:Name="StartupMenuItem" Header="Run at Windows startup"
+                          IsCheckable="True" Click="StartupMenuItem_Click" />
+                <MenuItem x:Name="RememberPosMenuItem" Header="Remember position"
+                          IsCheckable="True" IsChecked="True" Click="RememberPosMenuItem_Click" />
                 <Separator />
                 <MenuItem Header="Exit" Click="ExitMenuItem_Click" />
             </ContextMenu>
