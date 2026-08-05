@@ -15,15 +15,19 @@ public static class IconProvider
         Path.Combine(AppContext.BaseDirectory, "Assets", "icons");
 
     private static readonly Dictionary<string, BitmapImage> Cache = new(StringComparer.Ordinal);
+    private static readonly object _lock = new();
 
     public static BitmapImage Get(string slug)
     {
-        if (Cache.TryGetValue(slug, out BitmapImage? cached))
-            return cached;
+        lock (_lock)
+        {
+            if (Cache.TryGetValue(slug, out BitmapImage? cached))
+                return cached;
 
-        BitmapImage image = Load(slug) ?? Load("generic") ?? Empty();
-        Cache[slug] = image;
-        return image;
+            BitmapImage image = Load(slug) ?? Load("generic") ?? Empty();
+            Cache[slug] = image;
+            return image;
+        }
     }
 
     private static BitmapImage? Load(string slug)

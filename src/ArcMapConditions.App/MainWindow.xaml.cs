@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using ArcMapConditions.App.Services;
 using ArcMapConditions.App.ViewModels;
+using System.Windows.Forms; // Added for Screen.FromPoint
 
 namespace ArcMapConditions.App;
 
@@ -51,7 +52,8 @@ public partial class MainWindow : Window
         if (_settings.RememberPosition &&
             _settings.WindowLeft is double left &&
             _settings.WindowTop is double top &&
-            IsOnScreen(left, top, w, h))
+            IsOnScreen(left, top, w, h) &&
+            IsOnSameScreen(left, top))
         {
             Left = left;
             Top = top;
@@ -63,6 +65,9 @@ public partial class MainWindow : Window
             Top = area.Top + 8;
         }
 
+        // Ensure window is fully visible on screen
+        EnsureWindowIsVisible(w, h);
+        
         _positioned = true;
     }
 
@@ -75,6 +80,16 @@ public partial class MainWindow : Window
 
         _settings.WindowLeft = Left;
         _settings.WindowTop = Top;
+        // Save current screen ID
+        try
+        {
+            _settings.LastScreenId = GetScreenId();
+        }
+        catch
+        {
+            // If we can't determine the screen, just continue without saving it
+            _settings.LastScreenId = null;
+        }
     }
 
     /// <summary>
@@ -82,21 +97,123 @@ public partial class MainWindow : Window
     /// desktop that spans all connected monitors — so a position saved on a
     /// monitor that has since been unplugged is rejected.
     /// </summary>
-    private static bool IsOnScreen(double left, double top, double width, double height)
+    private bool IsOnScreen(double left, double top, double width, double height)
     {
+        // Handle rotated screens and negative coordinates properly
         double vLeft = SystemParameters.VirtualScreenLeft;
         double vTop = SystemParameters.VirtualScreenTop;
         double vWidth = SystemParameters.VirtualScreenWidth;
         double vHeight = SystemParameters.VirtualScreenHeight;
 
+        // Create proper virtual screen boundaries (handle negative coordinates)
+        double actualLeft = Math.Min(vLeft, vLeft + vWidth);
+        double actualTop = Math.Min(vTop, vTop + vHeight);
+        double actualRight = Math.Max(vLeft, vLeft + vWidth);
+        double actualBottom = Math.Max(vTop, vTop + vHeight);
+
+        // Check if window position is within virtual screen boundaries
         var win = new Rect(left, top, width, height);
-        win.Intersect(new Rect(vLeft, vTop, vWidth, vHeight));
+        var virtualScreen = new Rect(actualLeft, actualTop, actualRight - actualLeft, actualBottom - actualTop);
+        
+        // Check intersection with virtual screen
+        win.Intersect(virtualScreen);
         if (win.IsEmpty)
             return false;
 
         // The header must remain reachable to drag the widget.
+        double effectiveTop = Math.Min(top, top + height);
+        double effectiveBottom = Math.Max(top, top + height);
+        
         return win.Width >= 120 && win.Height >= 30
-            && top >= vTop - 4 && top <= vTop + vHeight - 30;
+            && effectiveTop >= virtualScreen.Top - 4 
+            && effectiveBottom <= virtualScreen.Bottom - 30;
+    }
+
+    /// <summary>
+    /// Checks if the window position is on the same screen as before
+    /// </summary>
+    private bool IsOnSameScreen(double left, double top)
+    {
+        if (string.IsNullOrEmpty(_settings.LastScreenId))
+            return true; // No previous screen info, assume it's okay
+
+        try
+        {
+            // For rotated screens, we need to be more careful about position checking
+            string currentScreenId = GetScreenId();
+            
+            // If the saved screen ID matches current screen ID, we can restore position
+            if (string.Equals(_settings.LastScreenId, currentScreenId, StringComparison.OrdinalIgnoreCase))
+                return true;
+                
+            // If screens don't match, check if window is still visible on any screen
+            // This handles cases where user moved window to different monitor but it's still valid
+            double vLeft = SystemParameters.VirtualScreenLeft;
+            double vTop = SystemParameters.VirtualScreenTop;
+            double vWidth = SystemParameters.VirtualScreenWidth;
+            double vHeight = SystemParameters.VirtualScreenHeight;
+
+            // Create proper boundaries for virtual screen
+            double actualLeft = Math.Min(vLeft, vLeft + vWidth);
+            double actualTop = Math.Min(vTop, vTop + vHeight);
+            double actualRight = Math.Max(vLeft, vLeft + vWidth);
+            double actualBottom = Math.Max(vTop, vTop + vHeight);
+
+            // Check if the saved position is within any currently connected screen
+            return left >= actualLeft - 100 && 
+                   top >= actualTop - 100 && 
+                   left <= actualRight + 100 && 
+                   top <= actualBottom + 100;
+        }
+        catch
+        {
+            // If we can't determine the screen, assume it's okay to restore position
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Gets a unique identifier for the current screen
+    /// </summary>
+    private string GetScreenId()
+    {
+        try
+        {
+            // Get the screen where this window is currently located
+            var screen = Screen.FromPoint(new System.Drawing.Point((int)Left, (int)Top));
+            return screen.DeviceName;
+        }
+        catch
+        {
+            // If we can't determine the screen, return a default identifier
+            return "default";
+        }
+    }
+
+    /// <summary>
+    /// Ensures the window is fully visible on screen by adjusting position if needed
+    /// </summary>
+    private void EnsureWindowIsVisible(double width, double height)
+    {
+        Rect virtualScreen = new Rect(
+            SystemParameters.VirtualScreenLeft,
+            SystemParameters.VirtualScreenTop,
+            SystemParameters.VirtualScreenWidth,
+            SystemParameters.VirtualScreenHeight);
+
+        // Handle negative coordinates properly for rotated screens
+        double adjustedLeft = Math.Max(Left, virtualScreen.Left);
+        double adjustedTop = Math.Max(Top, virtualScreen.Top);
+        
+        if (adjustedLeft != Left)
+            Left = adjustedLeft;
+        if (adjustedTop != Top)
+            Top = adjustedTop;
+            
+        if (Left + width > virtualScreen.Right)
+            Left = virtualScreen.Right - width - 8;
+        if (Top + height > virtualScreen.Bottom)
+            Top = virtualScreen.Bottom - height - 8;
     }
 
     // ----- Auto height (kept within the desktop, never yanked between screens) --
@@ -140,6 +257,11 @@ public partial class MainWindow : Window
                 Left = vRight - ActualWidth - 8;
             if (Left < vLeft)
                 Left = vLeft + 8;
+                
+            // Ensure window is fully visible vertically
+            double w = ActualWidth > 0 ? ActualWidth : Width;
+            double h = ActualHeight > 0 ? ActualHeight : 200;
+            EnsureWindowIsVisible(w, h);
         }
         finally
         {
@@ -153,6 +275,15 @@ public partial class MainWindow : Window
         {
             _settings.WindowLeft = Left;
             _settings.WindowTop = Top;
+            try
+            {
+                _settings.LastScreenId = GetScreenId();
+            }
+            catch
+            {
+                // If we can't determine the screen, just continue without saving it
+                _settings.LastScreenId = null;
+            }
         }
         _settings.Save();
     }
@@ -190,6 +321,15 @@ public partial class MainWindow : Window
         {
             _settings.WindowLeft = Left;
             _settings.WindowTop = Top;
+            try
+            {
+                _settings.LastScreenId = GetScreenId();
+            }
+            catch
+            {
+                // If we can't determine the screen, just continue without saving it
+                _settings.LastScreenId = null;
+            }
         }
         _settings.Save();
     }

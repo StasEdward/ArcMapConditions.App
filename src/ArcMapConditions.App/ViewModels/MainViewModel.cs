@@ -97,6 +97,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _isBusy = true;
         CommandManager.InvalidateRequerySuggested();
 
+        // Cancel any ongoing request
         _inFlight?.Cancel();
         _inFlight = new CancellationTokenSource();
         CancellationToken ct = _inFlight.Token;
@@ -104,6 +105,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         try
         {
             string? html = await _service.FetchHtmlAsync(ct).ConfigureAwait(true);
+            
+            // Check if the operation was cancelled after the async call
             if (ct.IsCancellationRequested)
                 return;
 
@@ -113,6 +116,17 @@ public sealed class MainViewModel : ObservableObject, IDisposable
             else if (Active.Count == 0 && Upcoming.Count == 0)
                 StatusText = "No schedule data yet — check your connection";
             // else: keep the last good data, leave status as-is.
+        }
+        catch (OperationCanceledException) when (_inFlight?.IsCancellationRequested == true)
+        {
+            // Handle cancellation properly
+            System.Diagnostics.Debug.WriteLine("Refresh operation was cancelled");
+        }
+        catch (Exception ex)
+        {
+            // Log any other exceptions
+            System.Diagnostics.Debug.WriteLine($"Error during refresh: {ex.Message}");
+            StatusText = "Error loading data — check your connection";
         }
         finally
         {

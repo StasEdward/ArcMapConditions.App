@@ -10,11 +10,12 @@ namespace ArcMapConditions.App.Services;
 /// which ones have just started. Keyed independently of the UI rows so a
 /// subscription survives the 60-second list rebuilds.
 /// </summary>
-public sealed class SubscriptionManager
+public sealed class SubscriptionManager : IDisposable
 {
     private static readonly long BucketTicks = TimeSpan.FromMinutes(10).Ticks;
 
     private readonly Dictionary<string, Subscription> _subs = new(StringComparer.Ordinal);
+    private readonly object _lock = new();
 
     /// <summary>
     /// Stable key for one occurrence: condition + map + start time rounded to the
@@ -28,27 +29,39 @@ public sealed class SubscriptionManager
         return string.Concat(condition, "|", map, "|", slot.ToString("yyyyMMddHHmm", CultureInfo.InvariantCulture));
     }
 
-    public bool IsSubscribed(string key) => _subs.ContainsKey(key);
+    public bool IsSubscribed(string key) 
+    { 
+        lock (_lock)
+        {
+            return _subs.ContainsKey(key);
+        }
+    }
 
     /// <summary>Toggles the subscription for an entry. Returns the new state.</summary>
     public bool Toggle(MapConditionEntry entry)
     {
-        string key = KeyFor(entry.Condition, entry.Map, entry.Target);
-        if (_subs.Remove(key))
-            return false;
+        lock (_lock)
+        {
+            string key = KeyFor(entry.Condition, entry.Map, entry.Target);
+            if (_subs.Remove(key))
+                return false;
 
-        _subs[key] = new Subscription(key, entry.Condition, entry.Map, entry.IconSlug, entry.Target);
-        return true;
+            _subs[key] = new Subscription(key, entry.Condition, entry.Map, entry.IconSlug, entry.Target);
+            return true;
+        }
     }
 
     /// <summary>Re-syncs stored start times from the freshly parsed upcoming list.</summary>
     public void UpdateTargets(IEnumerable<MapConditionEntry> upcoming)
     {
-        foreach (MapConditionEntry e in upcoming)
+        lock (_lock)
         {
-            string key = KeyFor(e.Condition, e.Map, e.Target);
-            if (_subs.TryGetValue(key, out Subscription? s) && !s.Notified)
-                s.Target = e.Target;
+            foreach (MapConditionEntry e in upcoming)
+            {
+                string key = KeyFor(e.Condition, e.Map, e.Target);
+                if (_subs.TryGetValue(key, out Subscription? s) && !s.Notified)
+                    s.Target = e.Target;
+            }
         }
     }
 
@@ -59,18 +72,27 @@ public sealed class SubscriptionManager
     public List<Subscription> CollectDue(DateTime now)
     {
         var due = new List<Subscription>();
-        foreach (Subscription s in _subs.Values)
+        
+        lock (_lock)
         {
-            if (!s.Notified && now >= s.Target)
+            foreach (Subscription s in _subs.Values)
             {
-                s.Notified = true;
-                due.Add(s);
+                if (!s.Notified && now >= s.Target)
+                {
+                    s.Notified = true;
+                    due.Add(s);
+                }
             }
+
+            foreach (Subscription s in due)
+                _subs.Remove(s.Key);
         }
-
-        foreach (Subscription s in due)
-            _subs.Remove(s.Key);
-
+        
         return due;
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose here
     }
 }

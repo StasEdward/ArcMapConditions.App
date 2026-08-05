@@ -43,8 +43,15 @@ public sealed class MapConditionsService : IDisposable
 
             return await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         }
-        catch (Exception)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
+            // Properly handle cancellation
+            return null;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception for debugging purposes
+            System.Diagnostics.Debug.WriteLine($"Error fetching HTML: {ex.Message}");
             // Swallow: the caller keeps showing the last good data.
             return null;
         }

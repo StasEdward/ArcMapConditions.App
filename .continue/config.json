@@ -1,0 +1,9 @@
+{
+  "workspace": "./",
+  "ignore": [
+    ".github",
+    ".git",
+    "dist",
+    "build"
+  ]
+}

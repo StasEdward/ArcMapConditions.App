@@ -20,6 +20,9 @@ public sealed class AppSettings
     /// <summary>Last window top, in WPF units across the whole virtual desktop.</summary>
     public double? WindowTop { get; set; }
 
+    /// <summary>Screen ID where window was last positioned (to handle monitor changes).</summary>
+    public string? LastScreenId { get; set; }
+
     [JsonIgnore]
     private static string Dir => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ArcMapConditions");

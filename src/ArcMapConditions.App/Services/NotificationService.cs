@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Media;
+using System.Threading.Tasks;
 
 namespace ArcMapConditions.App.Services;
 
@@ -8,6 +9,7 @@ namespace ArcMapConditions.App.Services;
 public sealed class NotificationService : IDisposable
 {
     private readonly SoundPlayer? _player;
+    private readonly object _lock = new();
 
     public NotificationService()
     {
@@ -20,8 +22,10 @@ public sealed class NotificationService : IDisposable
                 _player.Load();
             }
         }
-        catch
+        catch (Exception ex)
         {
+            // Log the exception but don't crash the app
+            System.Diagnostics.Debug.WriteLine($"Error initializing sound player: {ex.Message}");
             _player = null;
         }
     }
@@ -29,36 +33,49 @@ public sealed class NotificationService : IDisposable
     /// <summary>Plays the sound and opens a reminder window for the event.</summary>
     public void Notify(Subscription sub)
     {
-        PlaySound();
-
+        // Play sound on separate thread to avoid blocking UI
+        Task.Run(() => PlaySound());
+        
+        // Show toast window on main thread
         var toast = new ToastWindow(sub.Condition, sub.Map, sub.IconSlug);
         toast.Show();
     }
 
     private void PlaySound()
     {
-        try
+        lock (_lock)
         {
-            if (_player != null)
+            try
             {
-                _player.Play();          // async, on its own thread
-                return;
+                if (_player != null)
+                {
+                    _player.PlaySync(); // Use synchronous play to ensure completion
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception but don't crash the app
+                System.Diagnostics.Debug.WriteLine($"Error playing sound: {ex.Message}");
+            }
+
+            try
+            {
+                SystemSounds.Exclamation.Play();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception but don't crash the app
+                System.Diagnostics.Debug.WriteLine($"Error playing system sound: {ex.Message}");
             }
         }
-        catch
-        {
-            // fall through to the system sound
         }
 
-        try
+    public void Dispose()
+    {
+        lock (_lock)
         {
-            SystemSounds.Exclamation.Play();
-        }
-        catch
-        {
-            // no audio device — silently ignore
+            _player?.Dispose();
         }
     }
-
-    public void Dispose() => _player?.Dispose();
 }
